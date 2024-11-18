@@ -2,7 +2,7 @@ import time
 from py2neo import Graph
 
 # Connect to the Neo4j database
-graph = Graph("bolt://localhost:7687", auth=("neo4j", "password"))
+graph = Graph("bolt://localhost:7687", name="youtube-network-analyzer-backup", auth=("neo4j", "password"))
 
 # Test the connection
 try:
@@ -11,8 +11,8 @@ try:
 except Exception as e:
     print("Failed to connect to Neo4j:", e)
     
-csv_files = ["file:///0.csv","file:///1.csv","file:///2.csv","file:///3.csv"]
-csv_files_for_testing = ["file:///0.csv","file:///1.csv"]
+csv_files = ["file:///Clean_0.csv","file:///Clean_1.csv","file:///Clean_2.csv","file:///Clean_3.csv"]
+csv_files_for_testing = ["file:///Clean_0.csv","file:///Clean_1.csv", "file:///Clean_2.csv","file:///Clean_3.csv"]
 def create_nodes_from_csv(csv_file):
   query_create_nodes = """
   LOAD CSV WITH HEADERS FROM $csv_file AS row
