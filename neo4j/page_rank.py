@@ -1,5 +1,5 @@
 from neo4j import GraphDatabase
-
+import time
 # Neo4j connection details
 URI = "bolt://localhost:7687"  
 USERNAME = "neo4j"             
@@ -63,7 +63,12 @@ def get_top_10_videos_by_page_rank():
 
 # Run the script
 if __name__ == "__main__":
+    
+    start_time = time.time()  # Start timer for relationship creation
     run_pagerank()
     run_pagerank_and_write()
     get_top_10_videos_by_page_rank()
+    total_page_rank_time = time.time() - start_time
+    print(f"Total time for page rank operations: {total_page_rank_time:.2f} seconds.")
+
     driver.close()
