@@ -1,5 +1,8 @@
 from neo4j import GraphDatabase
 import time
+
+# source for page rank information and implementation: https://neo4j.com/docs/graph-data-science/current/algorithms/page-rank/
+
 # Neo4j connection details
 URI = "bolt://localhost:7687"  
 USERNAME = "neo4j"             
@@ -61,10 +64,9 @@ def get_top_10_videos_by_page_rank():
     for i, record in enumerate(results_list[:10], start=1):  # Limit to the top 10 records
         print(f"{i}. Video: {record['video_id']}, PageRank Score: {record['score']}")
 
-# Run the script
 if __name__ == "__main__":
     
-    start_time = time.time()  # Start timer for relationship creation
+    start_time = time.time() 
     run_pagerank()
     run_pagerank_and_write()
     get_top_10_videos_by_page_rank()
