@@ -78,7 +78,7 @@ def create_relationships_between_nodes():
 # Function to count rows in a CSV file
 def count_csv_rows(csv_file):
     count = 0
-    file_path = csv_file.replace("file://", "../data/0222_csv/")  # Strip the file:// prefix for local file access
+    file_path = csv_file.replace("file://", "../data/0222_csv/")  
     with open(file_path, 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
         next(reader)  # Skip header row

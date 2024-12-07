@@ -3,19 +3,17 @@ import time
 
 # source for page rank information and implementation: https://neo4j.com/docs/graph-data-science/current/algorithms/page-rank/
 
-# Neo4j connection details
 URI = "bolt://localhost:7687"  
 USERNAME = "neo4j"             
 PASSWORD = "password"     
 
-# Establish connection
 driver = GraphDatabase.driver(URI, auth=(USERNAME, PASSWORD))
 
 def run_pagerank():
     with driver.session() as session:
         session.run("CALL gds.graph.drop('videoGraph', false) YIELD graphName")
         
-        # Create a projected graph using the existing 'RELATED' relationships
+        # Create a projected graph using 'RELATED' relationships
         session.run("""
         CALL gds.graph.project(
             'videoGraph',
@@ -57,11 +55,9 @@ def get_top_10_videos_by_page_rank():
           ORDER BY score DESC
           """)
     print("PageRank Results:")
-    # Store the results in a list
     results_list = [record for record in result]
 
-    # Iterate over the stored results
-    for i, record in enumerate(results_list[:10], start=1):  # Limit to the top 10 records
+    for i, record in enumerate(results_list[:10], start=1):  
         print(f"{i}. Video: {record['video_id']}, PageRank Score: {record['score']}")
 
 if __name__ == "__main__":

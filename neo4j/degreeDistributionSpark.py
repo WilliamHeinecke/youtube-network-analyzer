@@ -1,7 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, max as spark_max, min as spark_min, avg
 
-# Initialize Spark session
 spark = SparkSession.builder \
     .appName("Neo4jDegreeDistribution") \
     .config("spark.jars", "neo4j-connector-apache-spark_2.12-5.3.2_for_spark_3.jar") \
@@ -10,7 +9,6 @@ spark = SparkSession.builder \
     .config("spark.neo4j.bolt.password", "password") \
     .getOrCreate()
 
-# Load data from Neo4j
 neo4j_df = spark.read.format("org.neo4j.spark.DataSource") \
     .option("url", "bolt://localhost:7687") \
     .option("authentication.type", "basic") \
@@ -27,14 +25,12 @@ neo4j_df = spark.read.format("org.neo4j.spark.DataSource") \
     """) \
     .load()
 
-# Show the loaded data
 print("Loaded Data from Neo4j:")
 neo4j_df.show()
 
 # Calculate total degree (sum of incoming and outgoing)
 degree_df = neo4j_df.withColumn("total_degree", col("outgoing_degree") + col("incoming_degree"))
 
-# Show the data with degrees
 print("Data with Degrees:")
 degree_df.show()
 
@@ -51,9 +47,7 @@ degree_stats = degree_df.select(
     spark_min(col("total_degree")).alias("min_total_degree")
 )
 
-# Show the statistics
 print("Degree Statistics:")
 degree_stats.show()
 
-# Stop Spark session
 spark.stop()
