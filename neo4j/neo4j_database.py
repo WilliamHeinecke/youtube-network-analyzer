@@ -1,4 +1,5 @@
 import time
+import csv
 from py2neo import Graph
 
 # Connect to the Neo4j database
@@ -11,8 +12,20 @@ try:
 except Exception as e:
     print("Failed to connect to Neo4j:", e)
     
-csv_files = ["file:///Clean_0.csv","file:///Clean_1.csv","file:///Clean_2.csv","file:///Clean_3.csv"]
-csv_files_for_testing = ["file:///Clean_0.csv","file:///Clean_1.csv", "file:///Clean_2.csv","file:///Clean_3.csv"]
+csv_files = ["file:///0.csv","file:///1.csv","file:///2.csv","file:///3.csv"]
+csv_files_for_testing = ["file:///0.csv","file:///1.csv","file:///2.csv"]
+
+# Function to clear the database
+def clear_database():
+    query_clear_db = """
+    MATCH (n)
+    DETACH DELETE n
+    """
+    start_time = time.time()  # Start timer
+    graph.run(query_clear_db)
+    end_time = time.time()  # End timer
+    print(f"Database cleared in {end_time - start_time:.2f} seconds.")
+
 def create_nodes_from_csv(csv_file):
   query_create_nodes = """
   LOAD CSV WITH HEADERS FROM $csv_file AS row
@@ -61,20 +74,54 @@ def create_relationships_between_nodes():
     graph.run(query_create_relationships)
     end_time = time.time()  # End timer
     print(f"Relationships created successfully between existing nodes in {end_time - start_time:.2f} seconds.")
-    
+
+# Function to count rows in a CSV file
+def count_csv_rows(csv_file):
+    count = 0
+    file_path = csv_file.replace("file://", "../data/0222_csv/")  
+    with open(file_path, 'r', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        next(reader)  # Skip header row
+        for _ in reader:
+            count += 1
+    return count
+
+# Function to count nodes in Neo4j database
+def count_nodes_in_neo4j():
+    query_count_nodes = """
+    MATCH (v:Video)
+    RETURN COUNT(v) AS node_count
+    """
+    result = graph.run(query_count_nodes)
+    return result.evaluate() 
+
+print("Clearing the database...")
+clear_database()
+
 # Loop through each CSV file in the list and load data into Neo4j
 print("Starting node creation...")
 total_node_creation_time = 0
+total_csv_rows = 0
 for csv_file in csv_files_for_testing:
-    # First, create the nodes for the video data
+    # Count rows in the CSV file
+    csv_row_count = count_csv_rows(csv_file)
+    total_csv_rows += csv_row_count
     start_time = time.time()  # Start timer for node creation per file
     create_nodes_from_csv(csv_file)
     total_node_creation_time += (time.time() - start_time)
-    
-    # Then, create relationships between the videos and their related videos
-    #create_relationships_from_csv(csv_file)
 
 print(f"Total time for node creation from all CSV files: {total_node_creation_time:.2f} seconds.")
+
+# Validate the number of nodes created in Neo4j
+nodes_in_neo4j = count_nodes_in_neo4j()
+print(f"Total nodes created in Neo4j: {nodes_in_neo4j}")
+print(f"Total rows in CSV files: {total_csv_rows}")
+
+# Step 2: Check if the number of nodes in Neo4j matches the number of rows in the CSV
+if nodes_in_neo4j == total_csv_rows:
+    print("Validation successful: The number of nodes in Neo4j matches the number of rows in the CSV files.")
+else:
+    print("Validation failed: The number of nodes in Neo4j does NOT match the number of rows in the CSV files.")
 
 print("Creating relationships between existing nodes...")
 start_time = time.time()  # Start timer for relationship creation
